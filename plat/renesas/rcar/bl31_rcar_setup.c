@@ -175,6 +175,8 @@ void bl31_platform_setup(void)
 
 	/* Get the mpidr for boot cpu */
 	rcar_boot_mpidr = read_mpidr_el1() & 0x0000ffffU;
+
+	rcar_dvfs_opp_init();
 }
 
 /*******************************************************************************
