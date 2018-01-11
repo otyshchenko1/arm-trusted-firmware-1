@@ -36,13 +36,19 @@
 #output file name
 FILE_NAME_SA0   = bootparam_sa0
 FILE_NAME_SA6   = cert_header_sa6
+FILE_NAME_SA6_EMMC = cert_header_sa6_emmc
 
 OUTPUT_FILE_SA0 = $(FILE_NAME_SA0).elf
 OUTPUT_FILE_SA6 = $(FILE_NAME_SA6).elf
+OUTPUT_FILE_SA6_EMMC = $(FILE_NAME_SA6_EMMC).elf
 
 #object file name
 OBJ_FILE_SA0 =	sa0.o
 OBJ_FILE_SA6 =	sa6.o
+OBJ_FILE_SA6_EMMC =	sa6_emmc.o
+
+# source file name
+SOURCE_FILE_SA6 =	sa6.c
 
 #linker script name 
 MEMORY_DEF_SA0 = sa0.ld.S
@@ -75,6 +81,9 @@ CC = $(CROSS_COMPILE)gcc
 CFLAGS += ${DEFINES}
 CFLAGS += -I../../include/lib/stdlib
 
+# Explicitly set RCAR_SA6_TYPE flag
+CFLAGS_SA6_EMMC = `echo "${CFLAGS}" | sed -e 's/-DRCAR_SA6_TYPE=0/-DRCAR_SA6_TYPE=1/'`
+
 #Linker
 LD = $(CROSS_COMPILE)ld
 
@@ -91,7 +100,7 @@ CL = rm -f
 # command
 
 .PHONY: all
-all: $(OUTPUT_FILE_SA0) $(OUTPUT_FILE_SA6)
+all: $(OUTPUT_FILE_SA0) $(OUTPUT_FILE_SA6) $(OUTPUT_FILE_SA6_EMMC)
 ###################################################
 # Linker
 ###################################################
@@ -113,9 +122,21 @@ $(OUTPUT_FILE_SA6) : $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6)
 	$(objcopy) -O srec --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).srec
 	$(objcopy) -O binary --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).bin
 
+$(OUTPUT_FILE_SA6_EMMC) : $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6_EMMC)
+	$(LD) $(OBJ_FILE_SA6_EMMC)	 	\
+	-T $(MEMORY_DEF_SA6)			\
+	-o $(OUTPUT_FILE_SA6_EMMC)		\
+	-Map $(FILE_NAME_SA6_EMMC).map 	\
+
+	$(objcopy) -O srec --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA6_EMMC) $(FILE_NAME_SA6_EMMC).srec
+	$(objcopy) -O binary --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA6_EMMC) $(FILE_NAME_SA6_EMMC).bin
+
 ###################################################
 # Compile
 ###################################################
+
+$(OBJ_FILE_SA6_EMMC):$(SOURCE_FILE_SA6)
+	${CC} -c ${CFLAGS_SA6_EMMC} ${CPPFLAGS} $< -o $@
 
 %.o:../%.c
 	$(CC) -c -I $< -o $@
