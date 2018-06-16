@@ -167,9 +167,9 @@ static uint32_t scpi_handle_cmd(int cmd, uint8_t *payload_size,
 		mmio_write_32(payload_out, (rcar_dvfs_get_latency() << 16) | (nr_opp << 8) | 0);
 		for (i = 0; i < nr_opp; i++) {
 			mmio_write_32(payload_out + 4 + 2 * i * 4,
-					rcar_dvfs_get_get_opp_frequency(i));
+					rcar_dvfs_get_opp_frequency(i));
 			mmio_write_32(payload_out + 4 + 2 * i * 4 + 4,
-					rcar_dvfs_get_get_opp_voltage(i));
+					rcar_dvfs_get_opp_voltage(i));
 		}
 		*payload_size = 4 + 2 * nr_opp * 4;
 		return SCPI_OK;

@@ -206,7 +206,7 @@ static const struct op_points *current_opp_table;
 
 static int dvfs_inited = 0;
 
-uint32_t rcar_dvfs_get_get_opp_voltage(int oppnr)
+uint32_t rcar_dvfs_get_opp_voltage(int oppnr)
 {
 	if (oppnr < 0 || oppnr >= current_opp_limit)
 		return ~0;
@@ -215,7 +215,7 @@ uint32_t rcar_dvfs_get_get_opp_voltage(int oppnr)
 	return current_opp_table[oppnr].volt / 1000;
 }
 
-uint32_t rcar_dvfs_get_get_opp_frequency(int oppnr)
+uint32_t rcar_dvfs_get_opp_frequency(int oppnr)
 {
 	if (oppnr < 0 || oppnr >= current_opp_limit)
 		return ~0;
@@ -555,7 +555,7 @@ int rcar_dvfs_set_index(int index)
 	if (index < 0 || index >= current_opp_limit)
 		return -1;
 
-	ret = set_opp(rcar_dvfs_get_get_opp_frequency(index));
+	ret = set_opp(rcar_dvfs_get_opp_frequency(index));
 	if (ret)
 		return ret;
 
